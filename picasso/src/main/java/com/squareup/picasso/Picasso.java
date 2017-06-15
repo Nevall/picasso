@@ -166,6 +166,7 @@ public class Picasso {
 
   boolean shutdown;
 
+  // TODO: 2017/2/23 Picasso 构造函数 
   Picasso(Context context, Dispatcher dispatcher, Cache cache, Listener listener,
       RequestTransformer requestTransformer, List<RequestHandler> extraRequestHandlers, Stats stats,
       Bitmap.Config defaultBitmapConfig, boolean indicatorsEnabled, boolean loggingEnabled) {
@@ -176,24 +177,24 @@ public class Picasso {
     this.requestTransformer = requestTransformer;
     this.defaultBitmapConfig = defaultBitmapConfig;
 
-    int builtInHandlers = 7; // Adjust this as internal handlers are added or removed.
-    int extraCount = (extraRequestHandlers != null ? extraRequestHandlers.size() : 0);
+    int builtInHandlers = 7; // Adjust this as internal handlers are added or removed.创建默认RequestHandler
+    int extraCount = (extraRequestHandlers != null ? extraRequestHandlers.size() : 0);//自定义RequestHandler
     List<RequestHandler> allRequestHandlers =
         new ArrayList<RequestHandler>(builtInHandlers + extraCount);
 
     // ResourceRequestHandler needs to be the first in the list to avoid
     // forcing other RequestHandlers to perform null checks on request.uri
     // to cover the (request.resourceId != 0) case.
-    allRequestHandlers.add(new ResourceRequestHandler(context));
-    if (extraRequestHandlers != null) {
+    allRequestHandlers.add(new ResourceRequestHandler(context));//添加ResourceRequestHandler
+    if (extraRequestHandlers != null) {//添加所有自定义RequestHandler
       allRequestHandlers.addAll(extraRequestHandlers);
     }
-    allRequestHandlers.add(new ContactsPhotoRequestHandler(context));
-    allRequestHandlers.add(new MediaStoreRequestHandler(context));
-    allRequestHandlers.add(new ContentStreamRequestHandler(context));
-    allRequestHandlers.add(new AssetRequestHandler(context));
-    allRequestHandlers.add(new FileRequestHandler(context));
-    allRequestHandlers.add(new NetworkRequestHandler(dispatcher.downloader, stats));
+    allRequestHandlers.add(new ContactsPhotoRequestHandler(context));//添加ContactsPhotoRequestHandler
+    allRequestHandlers.add(new MediaStoreRequestHandler(context));//MediaStoreRequestHandler
+    allRequestHandlers.add(new ContentStreamRequestHandler(context));//ContentStreamRequestHandler
+    allRequestHandlers.add(new AssetRequestHandler(context));//AssetRequestHandler
+    allRequestHandlers.add(new FileRequestHandler(context));//FileRequestHandler
+    allRequestHandlers.add(new NetworkRequestHandler(dispatcher.downloader, stats));//NetworkRequestHandler
     requestHandlers = Collections.unmodifiableList(allRequestHandlers);
 
     this.stats = stats;
@@ -202,7 +203,7 @@ public class Picasso {
     this.indicatorsEnabled = indicatorsEnabled;
     this.loggingEnabled = loggingEnabled;
     this.referenceQueue = new ReferenceQueue<Object>();
-    this.cleanupThread = new CleanupThread(referenceQueue, HANDLER);
+    this.cleanupThread = new CleanupThread(referenceQueue, HANDLER);//创建清理线程
     this.cleanupThread.start();
   }
 
@@ -250,7 +251,7 @@ public class Picasso {
 
     List<Action> actions = new ArrayList<Action>(targetToAction.values());
     //noinspection ForLoopReplaceableByForEach
-    for (int i = 0, n = actions.size(); i < n; i++) {
+    for (int i = 0, n = actions.size(); i < n; i++) {//取消tag对应的所有请求
       Action action = actions.get(i);
       if (tag.equals(action.getTag())) {
         cancelExistingRequest(action.getTarget());
@@ -260,7 +261,7 @@ public class Picasso {
     List<DeferredRequestCreator> deferredRequestCreators =
         new ArrayList<DeferredRequestCreator>(targetToDeferredRequestCreator.values());
     //noinspection ForLoopReplaceableByForEach
-    for (int i = 0, n = deferredRequestCreators.size(); i < n; i++) {
+    for (int i = 0, n = deferredRequestCreators.size(); i < n; i++) {//取消tag对应的所有延迟请求
       DeferredRequestCreator deferredRequestCreator = deferredRequestCreators.get(i);
       if (tag.equals(deferredRequestCreator.getTag())) {
         deferredRequestCreator.cancel();
@@ -306,7 +307,7 @@ public class Picasso {
    * @see #load(String)
    * @see #load(int)
    */
-  public RequestCreator load(@Nullable Uri uri) {
+  public RequestCreator load(@Nullable Uri uri) {//创建RequestCreator
     return new RequestCreator(this, uri, 0);
   }
 
@@ -372,7 +373,7 @@ public class Picasso {
 
   /**
    * Invalidate all memory cached images for the specified {@code uri}.
-   *
+   * 将uri对应的图片从缓存中清除
    * @see #invalidate(String)
    * @see #invalidate(File)
    */
@@ -455,6 +456,7 @@ public class Picasso {
 
   /**
    * Creates a {@link StatsSnapshot} of the current stats for this instance.
+   * 打印States Log
    * <p>
    * <b>NOTE:</b> The snapshot may not always be completely up-to-date if requests are still in
    * progress.
@@ -476,7 +478,7 @@ public class Picasso {
     stats.shutdown();
     dispatcher.shutdown();
     for (DeferredRequestCreator deferredRequestCreator : targetToDeferredRequestCreator.values()) {
-      deferredRequestCreator.cancel();
+      deferredRequestCreator.cancel();//取消所有延迟请求
     }
     targetToDeferredRequestCreator.clear();
     shutdown = true;
@@ -486,7 +488,7 @@ public class Picasso {
     return requestHandlers;
   }
 
-  Request transformRequest(Request request) {
+  Request transformRequest(Request request) {//处理转换请求
     Request transformed = requestTransformer.transformRequest(request);
     if (transformed == null) {
       throw new IllegalStateException("Request transformer "
@@ -496,29 +498,30 @@ public class Picasso {
     }
     return transformed;
   }
-
+  // 绑定view与延迟请求
   void defer(ImageView view, DeferredRequestCreator request) {
     // If there is already a deferred request, cancel it.
-    if (targetToDeferredRequestCreator.containsKey(view)) {
+    if (targetToDeferredRequestCreator.containsKey(view)) {//已存在绑定，解除绑定
       cancelExistingRequest(view);
     }
     targetToDeferredRequestCreator.put(view, request);
   }
 
-  void enqueueAndSubmit(Action action) {
+  void enqueueAndSubmit(Action action) {// 提交并执行请求
     Object target = action.getTarget();
-    if (target != null && targetToAction.get(target) != action) {
+    if (target != null && targetToAction.get(target) != action) {/*TargetAction 不一致取消*/
       // This will also check we are on the main thread.
-      cancelExistingRequest(target);
+      cancelExistingRequest(target);/*取消已经存在的Request*/
       targetToAction.put(target, action);
     }
-    submit(action);
+    submit(action);/*添加到队列中并等待分发*/
   }
 
+  /*添加到队列中并等待分发*/
   void submit(Action action) {
     dispatcher.dispatchSubmit(action);
   }
-
+  // 从内存缓存中获取Bitmap
   Bitmap quickMemoryCacheCheck(String key) {
     Bitmap cached = cache.get(key);
     if (cached != null) {
@@ -528,10 +531,10 @@ public class Picasso {
     }
     return cached;
   }
-
+  // 完成
   void complete(BitmapHunter hunter) {
     Action single = hunter.getAction();
-    List<Action> joined = hunter.getActions();
+    List<Action> joined = hunter.getActions();/*同一个Action多个Target*/
 
     boolean hasMultiple = joined != null && !joined.isEmpty();
     boolean shouldDeliver = single != null || hasMultiple;
@@ -561,10 +564,10 @@ public class Picasso {
       listener.onImageLoadFailed(this, uri, exception);
     }
   }
-
+  // Resume
   void resumeAction(Action action) {
     Bitmap bitmap = null;
-    if (shouldReadFromMemoryCache(action.memoryPolicy)) {
+    if (shouldReadFromMemoryCache(action.memoryPolicy)) {//从内存缓存中获取
       bitmap = quickMemoryCacheCheck(action.getKey());
     }
 
@@ -576,7 +579,7 @@ public class Picasso {
       }
     } else {
       // Re-submit the action to the executor.
-      enqueueAndSubmit(action);
+      enqueueAndSubmit(action);// 从新提交执行
       if (loggingEnabled) {
         log(OWNER_MAIN, VERB_RESUMED, action.request.logId());
       }
@@ -584,7 +587,7 @@ public class Picasso {
   }
 
   private void deliverAction(Bitmap result, LoadedFrom from, Action action) {
-    if (action.isCancelled()) {
+    if (action.isCancelled()) {//取消
       return;
     }
     if (!action.willReplay()) {
@@ -594,18 +597,18 @@ public class Picasso {
       if (from == null) {
         throw new AssertionError("LoadedFrom cannot be null.");
       }
-      action.complete(result, from);
+      action.complete(result, from);//complete
       if (loggingEnabled) {
         log(OWNER_MAIN, VERB_COMPLETED, action.request.logId(), "from " + from);
       }
     } else {
-      action.error();
+      action.error();//error
       if (loggingEnabled) {
         log(OWNER_MAIN, VERB_ERRORED, action.request.logId());
       }
     }
   }
-
+  // 取消已经存在的请求
   private void cancelExistingRequest(Object target) {
     checkMain();
     Action action = targetToAction.remove(target);
@@ -627,6 +630,8 @@ public class Picasso {
    * When the target of an action is weakly reachable but the request hasn't been canceled, it
    * gets added to the reference queue. This thread empties the reference queue and cancels the
    * request.
+   * 清理无效弱引用线程：由于Action中对target持有弱引用，因此当target被回收之后便会进入referenceQueue，
+   * 而相应的Action变为无效Action，通过cleanupThread中的loop循环实现对无效Action的清理。
    */
   private static class CleanupThread extends Thread {
     private final ReferenceQueue<Object> referenceQueue;
@@ -693,6 +698,7 @@ public class Picasso {
    * with full control over the configuration by using {@link Picasso.Builder} to create a
    * {@link Picasso} instance. You can either use this directly or by setting it as the global
    * instance with {@link #setSingletonInstance}.
+   * // TODO: 2017/2/23 Picasso 入口（1）
    */
   public static Picasso with(@NonNull Context context) {
     if (context == null) {
@@ -870,24 +876,25 @@ public class Picasso {
     }
 
     /** Create the {@link Picasso} instance. */
+    // TODO: 2017/2/23 初始化Picasso实例，单例 (2) 
     public Picasso build() {
       Context context = this.context;
 
-      if (downloader == null) {
+      if (downloader == null) {//创建默认下载器:OkHttp
         downloader = Utils.createDefaultDownloader(context);
       }
-      if (cache == null) {
+      if (cache == null) {//使用默认缓存策略，内存缓存基于LruCache,磁盘缓存基于http缓存,HttpResponseCache
         cache = new LruCache(context);
       }
-      if (service == null) {
+      if (service == null) {//创建默认线程池
         service = new PicassoExecutorService();
       }
-      if (transformer == null) {
+      if (transformer == null) {//创建默认Transformer:默认不转换
         transformer = RequestTransformer.IDENTITY;
       }
 
-      Stats stats = new Stats(cache);
-
+      Stats stats = new Stats(cache);//创建默认监控器，用于统计缓存命中率、下载时长等
+      // 创建分发器，处理事件分发  
       Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, downloader, cache, stats);
 
       return new Picasso(context, dispatcher, cache, listener, transformer, requestHandlers, stats,

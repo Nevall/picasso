@@ -53,25 +53,25 @@ class NetworkRequestHandler extends RequestHandler {
 
     Picasso.LoadedFrom loadedFrom = response.cached ? DISK : NETWORK;
 
-    Bitmap bitmap = response.getBitmap();
+    Bitmap bitmap = response.getBitmap();/*返回Bitmap*/
     if (bitmap != null) {
       return new Result(bitmap, loadedFrom);
     }
 
-    InputStream is = response.getInputStream();
+    InputStream is = response.getInputStream();/*返回InputStream*/
     if (is == null) {
       return null;
     }
     // Sometimes response content length is zero when requests are being replayed. Haven't found
     // root cause to this but retrying the request seems safe to do so.
-    if (loadedFrom == DISK && response.getContentLength() == 0) {
+    if (loadedFrom == DISK && response.getContentLength() == 0) {/*抛出异常*/
       Utils.closeQuietly(is);
       throw new ContentLengthException("Received response with 0 content-length header.");
     }
-    if (loadedFrom == NETWORK && response.getContentLength() > 0) {
+    if (loadedFrom == NETWORK && response.getContentLength() > 0) {/*加载完成*/
       stats.dispatchDownloadFinished(response.getContentLength());
     }
-    return new Result(is, loadedFrom);
+    return new Result(is, loadedFrom);/*返回数据*/
   }
 
   @Override int getRetryCount() {

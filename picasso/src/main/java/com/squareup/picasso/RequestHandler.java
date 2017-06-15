@@ -132,6 +132,7 @@ public abstract class RequestHandler {
   }
 
   /**
+   * 创建Bitmap参数
    * Lazily create {@link BitmapFactory.Options} based in given
    * {@link Request}, only instantiating them if needed.
    */
@@ -151,16 +152,19 @@ public abstract class RequestHandler {
     return options;
   }
 
+  /*是否仅获取Bitmap尺寸*/
   static boolean requiresInSampleSize(BitmapFactory.Options options) {
     return options != null && options.inJustDecodeBounds;
   }
 
+  /*计算Bitmap缩放比例*/
   static void calculateInSampleSize(int reqWidth, int reqHeight, BitmapFactory.Options options,
       Request request) {
     calculateInSampleSize(reqWidth, reqHeight, options.outWidth, options.outHeight, options,
         request);
   }
 
+  /*计算Bitmap缩放比例*/
   static void calculateInSampleSize(int reqWidth, int reqHeight, int width, int height,
       BitmapFactory.Options options, Request request) {
     int sampleSize = 1;

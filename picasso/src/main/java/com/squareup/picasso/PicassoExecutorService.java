@@ -33,46 +33,47 @@ import java.util.concurrent.TimeUnit;
 class PicassoExecutorService extends ThreadPoolExecutor {
   private static final int DEFAULT_THREAD_COUNT = 3;
 
+  //创建默认线程池，实例化工作队列和线程工厂
   PicassoExecutorService() {
     super(DEFAULT_THREAD_COUNT, DEFAULT_THREAD_COUNT, 0, TimeUnit.MILLISECONDS,
         new PriorityBlockingQueue<Runnable>(), new Utils.PicassoThreadFactory());
   }
-
+  //根据网络状况更改线程数量
   void adjustThreadCount(NetworkInfo info) {
     if (info == null || !info.isConnectedOrConnecting()) {
-      setThreadCount(DEFAULT_THREAD_COUNT);
+      setThreadCount(DEFAULT_THREAD_COUNT);//默认3条
       return;
     }
     switch (info.getType()) {
       case ConnectivityManager.TYPE_WIFI:
       case ConnectivityManager.TYPE_WIMAX:
       case ConnectivityManager.TYPE_ETHERNET:
-        setThreadCount(4);
+        setThreadCount(4);//WIFI下4条
         break;
       case ConnectivityManager.TYPE_MOBILE:
         switch (info.getSubtype()) {
           case TelephonyManager.NETWORK_TYPE_LTE:  // 4G
           case TelephonyManager.NETWORK_TYPE_HSPAP:
           case TelephonyManager.NETWORK_TYPE_EHRPD:
-            setThreadCount(3);
+            setThreadCount(3);//4G下3条
             break;
           case TelephonyManager.NETWORK_TYPE_UMTS: // 3G
           case TelephonyManager.NETWORK_TYPE_CDMA:
           case TelephonyManager.NETWORK_TYPE_EVDO_0:
           case TelephonyManager.NETWORK_TYPE_EVDO_A:
           case TelephonyManager.NETWORK_TYPE_EVDO_B:
-            setThreadCount(2);
+            setThreadCount(2);//3G下3条
             break;
           case TelephonyManager.NETWORK_TYPE_GPRS: // 2G
           case TelephonyManager.NETWORK_TYPE_EDGE:
-            setThreadCount(1);
+            setThreadCount(1);//2G下1条
             break;
           default:
-            setThreadCount(DEFAULT_THREAD_COUNT);
+            setThreadCount(DEFAULT_THREAD_COUNT);//默认3条
         }
         break;
       default:
-        setThreadCount(DEFAULT_THREAD_COUNT);
+        setThreadCount(DEFAULT_THREAD_COUNT);//默认3条
     }
   }
 

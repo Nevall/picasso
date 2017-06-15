@@ -141,7 +141,7 @@ final class Utils {
       throw new IllegalStateException("Method call should happen from the main thread.");
     }
   }
-
+  // 检测是否为主线程
   static boolean isMain() {
     return Looper.getMainLooper().getThread() == Thread.currentThread();
   }
@@ -222,6 +222,7 @@ final class Utils {
     return builder.toString();
   }
 
+  /*关闭输入流*/
   static void closeQuietly(InputStream is) {
     if (is == null) return;
     try {
@@ -248,23 +249,24 @@ final class Utils {
       return false;
     }
   }
-
+  //创建默认下载器
   static Downloader createDefaultDownloader(Context context) {
     if (SDK_INT >= GINGERBREAD) {
       try {
-        Class.forName("okhttp3.OkHttpClient");
+        Class.forName("okhttp3.OkHttpClient");// 反射查看是否依赖okhttp
         return OkHttp3DownloaderCreator.create(context);
       } catch (ClassNotFoundException ignored) {
       }
       try {
         Class.forName("com.squareup.okhttp.OkHttpClient");
-        return OkHttpDownloaderCreator.create(context);
+        return OkHttpDownloaderCreator.create(context);// 反射查看是否依赖okhttp
       } catch (ClassNotFoundException ignored) {
       }
     }
-    return new UrlConnectionDownloader(context);
+    return new UrlConnectionDownloader(context);//创建UrlConnection下载器
   }
 
+  // 创建缓存文件夹
   static File createDefaultCacheDir(Context context) {
     File cache = new File(context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
     if (!cache.exists()) {
@@ -274,6 +276,7 @@ final class Utils {
     return cache;
   }
 
+  //计算磁盘缓存文件夹大小：5M<大小<50M
   @TargetApi(JELLY_BEAN_MR2)
   static long calculateDiskCacheSize(File dir) {
     long size = MIN_DISK_CACHE_SIZE;
@@ -296,6 +299,7 @@ final class Utils {
     return Math.max(Math.min(size, MAX_DISK_CACHE_SIZE), MIN_DISK_CACHE_SIZE);
   }
 
+  // 计算内存缓存大小：占用可以内存堆的15%
   static int calculateMemoryCacheSize(Context context) {
     ActivityManager am = getService(context, ACTIVITY_SERVICE);
     boolean largeHeap = (context.getApplicationInfo().flags & FLAG_LARGE_HEAP) != 0;
@@ -306,7 +310,7 @@ final class Utils {
     // Target ~15% of the available heap.
     return (int) (1024L * 1024L * memoryClass / 7);
   }
-
+  // 检测是否开启飞行模式
   static boolean isAirplaneModeOn(Context context) {
     ContentResolver contentResolver = context.getContentResolver();
     try {
@@ -329,11 +333,11 @@ final class Utils {
   static <T> T getService(Context context, String service) {
     return (T) context.getSystemService(service);
   }
-
+  //是否配置权限
   static boolean hasPermission(Context context, String permission) {
     return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
   }
-
+  //InputStreamToByteArray
   static byte[] toByteArray(InputStream input) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byte[] buffer = new byte[1024 * 4];
@@ -343,7 +347,7 @@ final class Utils {
     }
     return byteArrayOutputStream.toByteArray();
   }
-
+  
   static boolean isWebPFile(InputStream stream) throws IOException {
     byte[] fileHeaderBytes = new byte[WEBP_FILE_HEADER_SIZE];
     boolean isWebPFile = false;
@@ -355,11 +359,12 @@ final class Utils {
     return isWebPFile;
   }
 
+  /*获取资源ID*/
   static int getResourceId(Resources resources, Request data) throws FileNotFoundException {
     if (data.resourceId != 0 || data.uri == null) {
       return data.resourceId;
     }
-
+    /*获取别的应用资源文件ID*/
     String pkg = data.uri.getAuthority();
     if (pkg == null) throw new FileNotFoundException("No package provided: " + data.uri);
 
@@ -384,12 +389,13 @@ final class Utils {
     return id;
   }
 
+  /*获取资源管理者*/
   static Resources getResources(Context context, Request data) throws FileNotFoundException {
     if (data.resourceId != 0 || data.uri == null) {
       return context.getResources();
     }
 
-    String pkg = data.uri.getAuthority();
+    String pkg = data.uri.getAuthority();/*获取别的应用资源*/
     if (pkg == null) throw new FileNotFoundException("No package provided: " + data.uri);
     try {
       PackageManager pm = context.getPackageManager();
@@ -403,6 +409,7 @@ final class Utils {
    * Prior to Android 5, HandlerThread always keeps a stack local reference to the last message
    * that was sent to it. This method makes sure that stack local reference never stays there
    * for too long by sending new messages to it every second.
+   * 周期的清理最后一条消息引用
    */
   static void flushStackLocalLeaks(Looper looper) {
     Handler handler = new Handler(looper) {

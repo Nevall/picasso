@@ -21,6 +21,7 @@ import android.graphics.Matrix;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.Gravity;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -118,6 +119,7 @@ class BitmapHunter implements Runnable {
    * Decode a byte stream into a Bitmap. This method will take into account additional information
    * about the supplied request in order to do the decoding efficiently (such as through leveraging
    * {@code inSampleSize}).
+   * decodeStream
    */
   static Bitmap decodeStream(InputStream stream, Request request) throws IOException {
     MarkableInputStream markStream = new MarkableInputStream(stream);
@@ -198,6 +200,7 @@ class BitmapHunter implements Runnable {
     }
   }
 
+  /*获取Bitmap*/
   Bitmap hunt() throws IOException {
     Bitmap bitmap = null;
 
@@ -236,15 +239,15 @@ class BitmapHunter implements Runnable {
         log(OWNER_HUNTER, VERB_DECODED, data.logId());
       }
       stats.dispatchBitmapDecoded(bitmap);
-      if (data.needsTransformation() || exifOrientation != 0) {
+      if (data.needsTransformation() || exifOrientation != 0) {/*转换或改变方向*/
         synchronized (DECODE_LOCK) {
-          if (data.needsMatrixTransform() || exifOrientation != 0) {
+          if (data.needsMatrixTransform() || exifOrientation != 0) {/*矩阵变换或改变方向*/
             bitmap = transformResult(data, bitmap, exifOrientation);
             if (picasso.loggingEnabled) {
               log(OWNER_HUNTER, VERB_TRANSFORMED, data.logId());
             }
           }
-          if (data.hasCustomTransformations()) {
+          if (data.hasCustomTransformations()) {/*自定义变换*/
             bitmap = applyCustomTransformations(data.transformations, bitmap);
             if (picasso.loggingEnabled) {
               log(OWNER_HUNTER, VERB_TRANSFORMED, data.logId(), "from custom transformations");
@@ -260,6 +263,7 @@ class BitmapHunter implements Runnable {
     return bitmap;
   }
 
+  /*绑定到队列中*/
   void attach(Action action) {
     boolean loggingEnabled = picasso.loggingEnabled;
     Request request = action.request;
@@ -292,6 +296,7 @@ class BitmapHunter implements Runnable {
     }
   }
 
+  /*从队列中移除*/
   void detach(Action action) {
     boolean detached = false;
     if (this.action == action) {
@@ -312,6 +317,7 @@ class BitmapHunter implements Runnable {
     }
   }
 
+  /*根据优先级排序*/
   private Priority computeNewPriority() {
     Priority newPriority = LOW;
 
@@ -340,6 +346,7 @@ class BitmapHunter implements Runnable {
     return newPriority;
   }
 
+  /*取消*/
   boolean cancel() {
     return action == null
         && (actions == null || actions.isEmpty())
@@ -347,10 +354,12 @@ class BitmapHunter implements Runnable {
         && future.cancel(false);
   }
 
+  /*取消*/
   boolean isCancelled() {
     return future != null && future.isCancelled();
   }
 
+  /*重新加载*/
   boolean shouldRetry(boolean airplaneMode, NetworkInfo info) {
     boolean hasRetries = retryCount > 0;
     if (!hasRetries) {
@@ -404,6 +413,7 @@ class BitmapHunter implements Runnable {
     return priority;
   }
 
+  /*更新线程名*/
   static void updateThreadName(Request data) {
     String name = data.getName();
 
@@ -414,6 +424,7 @@ class BitmapHunter implements Runnable {
     Thread.currentThread().setName(builder.toString());
   }
 
+  /*根据不同RequestHandler，创建对应BitmapHunter*/
   static BitmapHunter forRequest(Picasso picasso, Dispatcher dispatcher, Cache cache, Stats stats,
       Action action) {
     Request request = action.getRequest();
@@ -431,6 +442,7 @@ class BitmapHunter implements Runnable {
     return new BitmapHunter(picasso, dispatcher, cache, stats, action, ERRORING_HANDLER);
   }
 
+  /*自定义转换*/
   static Bitmap applyCustomTransformations(List<Transformation> transformations, Bitmap result) {
     for (int i = 0, count = transformations.size(); i < count; i++) {
       final Transformation transformation = transformations.get(i);
@@ -493,6 +505,7 @@ class BitmapHunter implements Runnable {
     return result;
   }
 
+  /*转换Bitmap*/
   static Bitmap transformResult(Request data, Bitmap result, int exifOrientation) {
     int inWidth = result.getWidth();
     int inHeight = result.getHeight();
@@ -505,7 +518,7 @@ class BitmapHunter implements Runnable {
 
     Matrix matrix = new Matrix();
 
-    if (data.needsMatrixTransform() || exifOrientation != 0) {
+    if (data.needsMatrixTransform() || exifOrientation != 0) {/*矩阵变换*/
       int targetWidth = data.targetWidth;
       int targetHeight = data.targetHeight;
 
@@ -651,6 +664,7 @@ class BitmapHunter implements Runnable {
             || (targetHeight != 0 && inHeight > targetHeight);
   }
 
+  /*旋转角度*/
   static int getExifRotation(int orientation) {
     int rotation;
     switch (orientation) {

@@ -29,7 +29,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 import static android.provider.ContactsContract.Contacts.openContactPhotoInputStream;
 import static com.squareup.picasso.Picasso.LoadedFrom.DISK;
-
+/*联系人照片请求处理*/
 class ContactsPhotoRequestHandler extends RequestHandler {
   /** A lookup uri (e.g. content://com.android.contacts/contacts/lookup/3570i61d948d30808e537) */
   private static final int ID_LOOKUP = 1;

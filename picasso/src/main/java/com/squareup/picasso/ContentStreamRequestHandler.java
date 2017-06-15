@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import static android.content.ContentResolver.SCHEME_CONTENT;
 import static com.squareup.picasso.Picasso.LoadedFrom.DISK;
-
+/*联系人资源请求处理*/
 class ContentStreamRequestHandler extends RequestHandler {
   final Context context;
 

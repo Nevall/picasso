@@ -17,7 +17,7 @@ package com.squareup.picasso;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-
+/*TargetAction*/
 final class TargetAction extends Action<Target> {
 
   TargetAction(Picasso picasso, Target target, Request data, int memoryPolicy, int networkPolicy,

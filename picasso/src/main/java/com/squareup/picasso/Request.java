@@ -175,7 +175,7 @@ public final class Request {
     return "[R" + id + ']';
   }
 
-  String getName() {
+  String getName() { 
     if (uri != null) {
       return String.valueOf(uri.getPath());
     }

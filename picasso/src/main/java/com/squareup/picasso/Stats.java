@@ -23,6 +23,9 @@ import android.os.Message;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 
+/**
+ * 通过Stats标记缓存的状态（命中数、未命中数、总大小、平均大小、、转换数、下载次数等）
+ */
 class Stats {
   private static final int CACHE_HIT = 0;
   private static final int CACHE_MISS = 1;
@@ -55,57 +58,57 @@ class Stats {
     Utils.flushStackLocalLeaks(statsThread.getLooper());
     this.handler = new StatsHandler(statsThread.getLooper(), this);
   }
-
+  // Bitmap解码完分发
   void dispatchBitmapDecoded(Bitmap bitmap) {
     processBitmap(bitmap, BITMAP_DECODE_FINISHED);
   }
-
+  // Bitmap转换完分发
   void dispatchBitmapTransformed(Bitmap bitmap) {
     processBitmap(bitmap, BITMAP_TRANSFORMED_FINISHED);
   }
-
+  // Bitmap下载完分发
   void dispatchDownloadFinished(long size) {
     handler.sendMessage(handler.obtainMessage(DOWNLOAD_FINISHED, size));
   }
-
+  // 分发缓存击中比率
   void dispatchCacheHit() {
     handler.sendEmptyMessage(CACHE_HIT);
   }
-
+  // 分发缓存Miss比率
   void dispatchCacheMiss() {
     handler.sendEmptyMessage(CACHE_MISS);
   }
-
+  //关闭线程
   void shutdown() {
     statsThread.quit();
   }
-
+  // 统计缓存击中比率
   void performCacheHit() {
     cacheHits++;
   }
-
+  // 统计缓存Miss比率
   void performCacheMiss() {
     cacheMisses++;
   }
-
+  // 统计下载信息
   void performDownloadFinished(Long size) {
     downloadCount++;
     totalDownloadSize += size;
     averageDownloadSize = getAverage(downloadCount, totalDownloadSize);
   }
-
+  // 统计Bitmap解码数量
   void performBitmapDecoded(long size) {
     originalBitmapCount++;
     totalOriginalBitmapSize += size;
     averageOriginalBitmapSize = getAverage(originalBitmapCount, totalOriginalBitmapSize);
   }
-
+  // 统计Bitmap转换数量
   void performBitmapTransformed(long size) {
     transformedBitmapCount++;
     totalTransformedBitmapSize += size;
     averageTransformedBitmapSize = getAverage(originalBitmapCount, totalTransformedBitmapSize);
   }
-
+  // 创建状态快照：打印Log
   StatsSnapshot createSnapshot() {
     return new StatsSnapshot(cache.maxSize(), cache.size(), cacheHits, cacheMisses,
         totalDownloadSize, totalOriginalBitmapSize, totalTransformedBitmapSize, averageDownloadSize,

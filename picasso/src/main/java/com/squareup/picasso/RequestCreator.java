@@ -107,6 +107,7 @@ public class RequestCreator {
    * A placeholder drawable to be used while the image is being loaded. If the requested image is
    * not immediately available in the memory cache then this resource will be set on the target
    * {@link ImageView}.
+   * 设置PlaceHolder
    */
   public RequestCreator placeholder(@DrawableRes int placeholderResId) {
     if (!setPlaceholder) {
@@ -129,6 +130,7 @@ public class RequestCreator {
    * <p>
    * If you are not using a placeholder image but want to clear an existing image (such as when
    * used in an {@link android.widget.Adapter adapter}), pass in {@code null}.
+   * 设置PlaceHolder
    */
   public RequestCreator placeholder(@NonNull Drawable placeholderDrawable) {
     if (!setPlaceholder) {
@@ -141,7 +143,8 @@ public class RequestCreator {
     return this;
   }
 
-  /** An error drawable to be used if the request image could not be loaded. */
+  /** An error drawable to be used if the request image could not be loaded.
+   * 设置error image */
   public RequestCreator error(@DrawableRes int errorResId) {
     if (errorResId == 0) {
       throw new IllegalArgumentException("Error image resource invalid.");
@@ -153,7 +156,8 @@ public class RequestCreator {
     return this;
   }
 
-  /** An error drawable to be used if the request image could not be loaded. */
+  /** An error drawable to be used if the request image could not be loaded.
+   * 设置error image */
   public RequestCreator error(@NonNull Drawable errorDrawable) {
     if (errorDrawable == null) {
       throw new IllegalArgumentException("Error image may not be null.");
@@ -182,6 +186,7 @@ public class RequestCreator {
    * @see Picasso#cancelTag(Object)
    * @see Picasso#pauseTag(Object)
    * @see Picasso#resumeTag(Object)
+   * 设置tag
    */
   public RequestCreator tag(@NonNull Object tag) {
     if (tag == null) {
@@ -199,13 +204,15 @@ public class RequestCreator {
    * will result in delayed execution of the request until the {@link ImageView} has been laid out.
    * <p>
    * <em>Note:</em> This method works only when your target is an {@link ImageView}.
+   * 设置fit,仅供ImageView使用，使用该接口将会延时直到ImageView以显示
    */
   public RequestCreator fit() {
     deferred = true;
     return this;
   }
 
-  /** Internal use only. Used by {@link DeferredRequestCreator}. */
+  /** Internal use only. Used by {@link DeferredRequestCreator}. 
+   * 设置unfit*/
   RequestCreator unfit() {
     deferred = false;
     return this;
@@ -222,7 +229,8 @@ public class RequestCreator {
     return tag;
   }
 
-  /** Resize the image to the specified dimension size. */
+  /** Resize the image to the specified dimension size. 
+   * 设置图片大小*/
   public RequestCreator resizeDimen(int targetWidthResId, int targetHeightResId) {
     Resources resources = picasso.context.getResources();
     int targetWidth = resources.getDimensionPixelSize(targetWidthResId);
@@ -230,7 +238,8 @@ public class RequestCreator {
     return resize(targetWidth, targetHeight);
   }
 
-  /** Resize the image to the specified size in pixels. */
+  /** Resize the image to the specified size in pixels.
+   * 设置图片大小 */
   public RequestCreator resize(int targetWidth, int targetHeight) {
     data.resize(targetWidth, targetHeight);
     return this;
@@ -240,6 +249,7 @@ public class RequestCreator {
    * Crops an image inside of the bounds specified by {@link #resize(int, int)} rather than
    * distorting the aspect ratio. This cropping technique scales the image so that it fills the
    * requested bounds and then crops the extra.
+   * 居中显示
    */
   public RequestCreator centerCrop() {
     data.centerCrop(Gravity.CENTER);
@@ -250,6 +260,7 @@ public class RequestCreator {
    * Crops an image inside of the bounds specified by {@link #resize(int, int)} rather than
    * distorting the aspect ratio. This cropping technique scales the image so that it fills the
    * requested bounds and then crops the extra, preferring the contents at {@code alignGravity}.
+   * 设置gravity
    */
   public RequestCreator centerCrop(int alignGravity) {
     data.centerCrop(alignGravity);
@@ -259,6 +270,7 @@ public class RequestCreator {
   /**
    * Centers an image inside of the bounds specified by {@link #resize(int, int)}. This scales
    * the image so that both dimensions are equal to or less than the requested bounds.
+   * 内部居中
    */
   public RequestCreator centerInside() {
     data.centerInside();
@@ -268,19 +280,22 @@ public class RequestCreator {
   /**
    * Only resize an image if the original image size is bigger than the target size
    * specified by {@link #resize(int, int)}.
+   * 只缩小
    */
   public RequestCreator onlyScaleDown() {
     data.onlyScaleDown();
     return this;
   }
 
-  /** Rotate the image by the specified degrees. */
+  /** Rotate the image by the specified degrees. 
+   * 设置转角*/
   public RequestCreator rotate(float degrees) {
     data.rotate(degrees);
     return this;
   }
 
-  /** Rotate the image by the specified degrees around a pivot point. */
+  /** Rotate the image by the specified degrees around a pivot point.
+   * 在指定位置设置转角 */
   public RequestCreator rotate(float degrees, float pivotX, float pivotY) {
     data.rotate(degrees, pivotX, pivotY);
     return this;
@@ -291,6 +306,7 @@ public class RequestCreator {
    * <p>
    * Note: This value may be ignored by {@link BitmapFactory}. See
    * {@link BitmapFactory.Options#inPreferredConfig its documentation} for more details.
+   * 设置Bitmap config
    */
   public RequestCreator config(@NonNull Bitmap.Config config) {
     data.config(config);
@@ -300,6 +316,7 @@ public class RequestCreator {
   /**
    * Sets the stable key for this request to be used instead of the URI or resource ID when
    * caching. Two requests with the same value are considered to be for the same resource.
+   * 设置stableKey
    */
   public RequestCreator stableKey(@NonNull String stableKey) {
     data.stableKey(stableKey);
@@ -312,6 +329,7 @@ public class RequestCreator {
    * This will affect the order in which the requests execute but does not guarantee it.
    * By default, all requests have {@link Priority#NORMAL} priority, except for
    * {@link #fetch()} requests, which have {@link Priority#LOW} priority by default.
+   * 设置优先级
    */
   public RequestCreator priority(@NonNull Priority priority) {
     data.priority(priority);
@@ -322,6 +340,7 @@ public class RequestCreator {
    * Add a custom transformation to be applied to the image.
    * <p>
    * Custom transformations will always be run after the built-in transformations.
+   * 设置自定义transform
    */
   // TODO show example of calling resize after a transform in the javadoc
   public RequestCreator transform(@NonNull Transformation transformation) {
@@ -333,6 +352,7 @@ public class RequestCreator {
    * Add a list of custom transformations to be applied to the image.
    * <p>
    * Custom transformations will always be run after the built-in transformations.
+   * 设置自定义transform
    */
   public RequestCreator transform(@NonNull List<? extends Transformation> transformations) {
     data.transform(transformations);
@@ -349,6 +369,7 @@ public class RequestCreator {
   /**
    * Specifies the {@link MemoryPolicy} to use for this request. You may specify additional policy
    * options using the varargs parameter.
+   * 设置内存策略
    */
   public RequestCreator memoryPolicy(@NonNull MemoryPolicy policy,
       @NonNull MemoryPolicy... additional) {
@@ -373,6 +394,7 @@ public class RequestCreator {
   /**
    * Specifies the {@link NetworkPolicy} to use for this request. You may specify additional policy
    * options using the varargs parameter.
+   * 设置网络策略
    */
   public RequestCreator networkPolicy(@NonNull NetworkPolicy policy,
       @NonNull NetworkPolicy... additional) {
@@ -417,6 +439,7 @@ public class RequestCreator {
    * <p>
    * <em>Note</em>: The result of this operation is not cached in memory because the underlying
    * {@link Cache} implementation is not guaranteed to be thread-safe.
+   * 在非主线程中调用，获取Request的Bitmap
    */
   public Bitmap get() throws IOException {
     long started = System.nanoTime();
@@ -429,10 +452,10 @@ public class RequestCreator {
       return null;
     }
 
-    Request finalData = createRequest(started);
-    String key = createKey(finalData, new StringBuilder());
+    Request finalData = createRequest(started);/*创建Request*/
+    String key = createKey(finalData, new StringBuilder());/*创建key*/
 
-    Action action = new GetAction(picasso, finalData, memoryPolicy, networkPolicy, tag, key);
+    Action action = new GetAction(picasso, finalData, memoryPolicy, networkPolicy, tag, key);/*创建GetAction*/
     return forRequest(picasso, picasso.dispatcher, picasso.cache, picasso.stats, action).hunt();
   }
 
@@ -441,6 +464,7 @@ public class RequestCreator {
    * useful when you want to warm up the cache with an image.
    * <p>
    * <em>Note:</em> It is safe to invoke this method from any thread.
+   * 提取，主要用于图片预加载
    */
   public void fetch() {
     fetch(null);
@@ -454,6 +478,7 @@ public class RequestCreator {
    * <em>Note:</em> The {@link Callback} param is a strong reference and will prevent your
    * {@link android.app.Activity} or {@link android.app.Fragment} from being garbage collected
    * until the request is completed.
+   * 提取，主要用于图片预加载；加载成功/失败结果回调Callback
    */
   public void fetch(@Nullable Callback callback) {
     long started = System.nanoTime();
@@ -467,10 +492,10 @@ public class RequestCreator {
         data.priority(Priority.LOW);
       }
 
-      Request request = createRequest(started);
+      Request request = createRequest(started);/*创建Request*/
       String key = createKey(request, new StringBuilder());
 
-      if (shouldReadFromMemoryCache(memoryPolicy)) {
+      if (shouldReadFromMemoryCache(memoryPolicy)) {/*从缓存中获取*/
         Bitmap bitmap = picasso.quickMemoryCacheCheck(key);
         if (bitmap != null) {
           if (picasso.loggingEnabled) {
@@ -533,6 +558,7 @@ public class RequestCreator {
    * <em>Note:</em> This method keeps a weak reference to the {@link Target} instance and will be
    * garbage collected if you do not keep a strong reference to it. To receive callbacks when an
    * image is loaded use {@link #into(android.widget.ImageView, Callback)}.
+   * into Target interface
    */
   public void into(@NonNull Target target) {
     long started = System.nanoTime();
@@ -545,16 +571,16 @@ public class RequestCreator {
       throw new IllegalStateException("Fit cannot be used with a Target.");
     }
 
-    if (!data.hasImage()) {
+    if (!data.hasImage()) {/*未设置uri或resId*/
       picasso.cancelRequest(target);
-      target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);
+      target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);/*设置PlaceHolder*/
       return;
     }
 
-    Request request = createRequest(started);
-    String requestKey = createKey(request);
+    Request request = createRequest(started);/*创建请求*/
+    String requestKey = createKey(request);/*创建Key*/
 
-    if (shouldReadFromMemoryCache(memoryPolicy)) {
+    if (shouldReadFromMemoryCache(memoryPolicy)) {/*从缓存中获取*/
       Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
       if (bitmap != null) {
         picasso.cancelRequest(target);
@@ -563,9 +589,9 @@ public class RequestCreator {
       }
     }
 
-    target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);
+    target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);/*设置PlaceHolder*/
 
-    Action action =
+    Action action =/*创建TargetAction*/
         new TargetAction(picasso, target, request, memoryPolicy, networkPolicy, errorDrawable,
             requestKey, tag, errorResId);
     picasso.enqueueAndSubmit(action);
@@ -574,6 +600,7 @@ public class RequestCreator {
   /**
    * Asynchronously fulfills the request into the specified {@link RemoteViews} object with the
    * given {@code viewId}. This is used for loading bitmaps into a {@link Notification}.
+   * 加载图片到Notification中
    */
   public void into(@NonNull RemoteViews remoteViews, @IdRes int viewId, int notificationId,
       @NonNull Notification notification) {
@@ -583,6 +610,7 @@ public class RequestCreator {
   /**
    * Asynchronously fulfills the request into the specified {@link RemoteViews} object with the
    * given {@code viewId}. This is used for loading bitmaps into a {@link Notification}.
+   * 加载图片到Notification中
    */
   public void into(@NonNull RemoteViews remoteViews, @IdRes int viewId, int notificationId,
       @NonNull Notification notification, @Nullable String notificationTag) {
@@ -592,6 +620,7 @@ public class RequestCreator {
   /**
    * Asynchronously fulfills the request into the specified {@link RemoteViews} object with the
    * given {@code viewId}. This is used for loading bitmaps into a {@link Notification}.
+   * 加载图片到Notification中
    */
   public void into(@NonNull RemoteViews remoteViews, @IdRes int viewId, int notificationId,
       @NonNull Notification notification, @Nullable String notificationTag, Callback callback) {
@@ -611,19 +640,20 @@ public class RequestCreator {
           "Cannot use placeholder or error drawables with remote views.");
     }
 
-    Request request = createRequest(started);
+    Request request = createRequest(started);/*创建请求*/
     String key = createKey(request, new StringBuilder()); // Non-main thread needs own builder.
 
-    RemoteViewsAction action =
+    RemoteViewsAction action =/*创建Notification Action*/
         new NotificationAction(picasso, request, remoteViews, viewId, notificationId, notification,
             notificationTag, memoryPolicy, networkPolicy, key, tag, errorResId, callback);
 
-    performRemoteViewInto(action);
+    performRemoteViewInto(action);/*获取图片并加载到Target View中*/
   }
 
   /**
    * Asynchronously fulfills the request into the specified {@link RemoteViews} object with the
    * given {@code viewId}. This is used for loading bitmaps into all instances of a widget.
+   * 加载图片到所有Widget 的RemoteView中
    */
   public void into(@NonNull RemoteViews remoteViews, @IdRes int viewId,
       @NonNull int[] appWidgetIds) {
@@ -633,6 +663,7 @@ public class RequestCreator {
   /**
    * Asynchronously fulfills the request into the specified {@link RemoteViews} object with the
    * given {@code viewId}. This is used for loading bitmaps into all instances of a widget.
+   * 加载图片到所有Widget 的RemoteView中
    */
   public void into(@NonNull RemoteViews remoteViews, @IdRes int viewId, @NonNull int[] appWidgetIds,
       Callback callback) {
@@ -652,10 +683,10 @@ public class RequestCreator {
           "Cannot use placeholder or error drawables with remote views.");
     }
 
-    Request request = createRequest(started);
+    Request request = createRequest(started);/*创建请求*/
     String key = createKey(request, new StringBuilder()); // Non-main thread needs own builder.
 
-    RemoteViewsAction action =
+    RemoteViewsAction action =/*创建AppWidget Action*/
         new AppWidgetAction(picasso, request, remoteViews, viewId, appWidgetIds, memoryPolicy,
             networkPolicy, key, tag, errorResId, callback);
 
@@ -667,6 +698,7 @@ public class RequestCreator {
    * <p>
    * <em>Note:</em> This method keeps a weak reference to the {@link ImageView} instance and will
    * automatically support object recycling.
+   * 添加图片到ImageView中
    */
   public void into(ImageView target) {
     into(target, null);
@@ -680,6 +712,7 @@ public class RequestCreator {
    * {@link android.app.Activity} or {@link android.app.Fragment} from being garbage collected. If
    * you use this method, it is <b>strongly</b> recommended you invoke an adjacent
    * {@link Picasso#cancelRequest(android.widget.ImageView)} call to prevent temporary leaking.
+   * 添加图片到ImageView中,为防止临时内存泄露，完成后需调用Picasso.cancelRequest;
    */
   public void into(ImageView target, Callback callback) {
     long started = System.nanoTime();
@@ -691,32 +724,33 @@ public class RequestCreator {
 
     if (!data.hasImage()) {
       picasso.cancelRequest(target);
-      if (setPlaceholder) {
+      if (setPlaceholder) {/*设置PlaceHolder*/
         setPlaceholder(target, getPlaceholderDrawable());
       }
       return;
     }
 
-    if (deferred) {
+    if (deferred) {/*已设置fit填充*/
       if (data.hasSize()) {
         throw new IllegalStateException("Fit cannot be used with resize.");
       }
       int width = target.getWidth();
       int height = target.getHeight();
-      if (width == 0 || height == 0 || target.isLayoutRequested()) {
-        if (setPlaceholder) {
+      if (width == 0 || height == 0 || target.isLayoutRequested()) {/*ImageView 未加载完*/
+        if (setPlaceholder) {/*设置PlaceHolder*/
           setPlaceholder(target, getPlaceholderDrawable());
         }
+        /*延时，直到ImageView加载完*/
         picasso.defer(target, new DeferredRequestCreator(this, target, callback));
         return;
       }
-      data.resize(width, height);
+      data.resize(width, height);/*设置图片显示Size*/
     }
 
-    Request request = createRequest(started);
+    Request request = createRequest(started);/*创建Request*/
     String requestKey = createKey(request);
 
-    if (shouldReadFromMemoryCache(memoryPolicy)) {
+    if (shouldReadFromMemoryCache(memoryPolicy)) {/*从缓存中获取Bitmap*/
       Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
       if (bitmap != null) {
         picasso.cancelRequest(target);
@@ -731,18 +765,18 @@ public class RequestCreator {
       }
     }
 
-    if (setPlaceholder) {
+    if (setPlaceholder) {/*设置PlaceHolder*/
       setPlaceholder(target, getPlaceholderDrawable());
     }
 
-    Action action =
+    Action action =/*创建ImageView Action*/
         new ImageViewAction(picasso, target, request, memoryPolicy, networkPolicy, errorResId,
             errorDrawable, requestKey, tag, callback, noFade);
 
-    picasso.enqueueAndSubmit(action);
+    picasso.enqueueAndSubmit(action);/*添加到队列中*/
   }
 
-  private Drawable getPlaceholderDrawable() {
+  private Drawable getPlaceholderDrawable() {/*获取PlaceHolder*/
     if (placeholderResId != 0) {
       return picasso.context.getResources().getDrawable(placeholderResId);
     } else {
@@ -750,11 +784,12 @@ public class RequestCreator {
     }
   }
 
-  /** Create the request optionally passing it through the request transformer. */
+  /** Create the request optionally passing it through the request transformer. 
+   * 创建Request请求,可选择根据RequestTransformer转换请求*/
   private Request createRequest(long started) {
     int id = nextId.getAndIncrement();
 
-    Request request = data.build();
+    Request request = data.build();/*Build Request*/
     request.id = id;
     request.started = started;
 
@@ -763,7 +798,7 @@ public class RequestCreator {
       log(OWNER_MAIN, VERB_CREATED, request.plainId(), request.toString());
     }
 
-    Request transformed = picasso.transformRequest(request);
+    Request transformed = picasso.transformRequest(request);/*根据RequestTransformer转换请求，若无则不变*/
     if (transformed != request) {
       // If the request was changed, copy over the id and timestamp from the original.
       transformed.id = id;
@@ -777,8 +812,9 @@ public class RequestCreator {
     return transformed;
   }
 
+  /*执行RemoteView Action*/
   private void performRemoteViewInto(RemoteViewsAction action) {
-    if (shouldReadFromMemoryCache(memoryPolicy)) {
+    if (shouldReadFromMemoryCache(memoryPolicy)) {/*从缓存中获取Bitmap*/
       Bitmap bitmap = picasso.quickMemoryCacheCheck(action.getKey());
       if (bitmap != null) {
         action.complete(bitmap, MEMORY);
@@ -790,6 +826,6 @@ public class RequestCreator {
       action.setImageResource(placeholderResId);
     }
 
-    picasso.enqueueAndSubmit(action);
+    picasso.enqueueAndSubmit(action);/*添加到队列中*/
   }
 }

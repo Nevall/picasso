@@ -40,14 +40,15 @@ class ResourceRequestHandler extends RequestHandler {
   }
 
   @Override public Result load(Request request, int networkPolicy) throws IOException {
-    Resources res = Utils.getResources(context, request);
-    int id = Utils.getResourceId(res, request);
+    Resources res = Utils.getResources(context, request);/*获取Resource管理者*/
+    int id = Utils.getResourceId(res, request);/*获取资源ID*/
     return new Result(decodeResource(res, id, request), DISK);
   }
 
+  /*加载Resource资源*/
   private static Bitmap decodeResource(Resources resources, int id, Request data) {
-    final BitmapFactory.Options options = createBitmapOptions(data);
-    if (requiresInSampleSize(options)) {
+    final BitmapFactory.Options options = createBitmapOptions(data);/*创建Bitmap参数*/
+    if (requiresInSampleSize(options)) {/*设置Bitmap缩放比例*/
       BitmapFactory.decodeResource(resources, id, options);
       calculateInSampleSize(data.targetWidth, data.targetHeight, options, data);
     }

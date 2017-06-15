@@ -37,12 +37,14 @@ class AssetRequestHandler extends RequestHandler {
     this.context = context;
   }
 
+  /*是否可加重Asset资源*/
   @Override public boolean canHandleRequest(Request data) {
     Uri uri = data.uri;
     return (SCHEME_FILE.equals(uri.getScheme())
         && !uri.getPathSegments().isEmpty() && ANDROID_ASSET.equals(uri.getPathSegments().get(0)));
   }
 
+  /*从Disk中加载Asset资源*/
   @Override public Result load(Request request, int networkPolicy) throws IOException {
     if (assetManager == null) {
       synchronized (lock) {

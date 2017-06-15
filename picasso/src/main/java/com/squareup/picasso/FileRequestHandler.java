@@ -38,7 +38,7 @@ class FileRequestHandler extends ContentStreamRequestHandler {
   @Override public Result load(Request request, int networkPolicy) throws IOException {
     return new Result(null, getInputStream(request), DISK, getFileExifRotation(request.uri));
   }
-
+  /*获取图片旋转角度*/
   static int getFileExifRotation(Uri uri) throws IOException {
     ExifInterface exifInterface = new ExifInterface(uri.getPath());
     return exifInterface.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);

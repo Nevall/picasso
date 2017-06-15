@@ -58,12 +58,12 @@ class MediaStoreRequestHandler extends ContentStreamRequestHandler {
     String mimeType = contentResolver.getType(request.uri);
     boolean isVideo = mimeType != null && mimeType.startsWith("video/");
 
-    if (request.hasSize()) {
+    if (request.hasSize()) {/*Video缩略图*/
       PicassoKind picassoKind = getPicassoKind(request.targetWidth, request.targetHeight);
       if (!isVideo && picassoKind == FULL) {
         return new Result(null, getInputStream(request), DISK, exifOrientation);
       }
-
+      /*计算缩放比例*/
       long id = parseId(request.uri);
 
       BitmapFactory.Options options = createBitmapOptions(request);
@@ -74,13 +74,13 @@ class MediaStoreRequestHandler extends ContentStreamRequestHandler {
 
       Bitmap bitmap;
 
-      if (isVideo) {
+      if (isVideo) {/*Video缩略图*/
         // Since MediaStore doesn't provide the full screen kind thumbnail, we use the mini kind
         // instead which is the largest thumbnail size can be fetched from MediaStore.
         int kind = (picassoKind == FULL) ? Video.Thumbnails.MINI_KIND : picassoKind.androidKind;
         bitmap = Video.Thumbnails.getThumbnail(contentResolver, id, kind, options);
       } else {
-        bitmap =
+        bitmap =/*图片缩略图*/
             Images.Thumbnails.getThumbnail(contentResolver, id, picassoKind.androidKind, options);
       }
 
@@ -91,7 +91,7 @@ class MediaStoreRequestHandler extends ContentStreamRequestHandler {
 
     return new Result(null, getInputStream(request), DISK, exifOrientation);
   }
-
+  /*获取图片尺寸类型*/
   static PicassoKind getPicassoKind(int targetWidth, int targetHeight) {
     if (targetWidth <= MICRO.width && targetHeight <= MICRO.height) {
       return MICRO;
@@ -101,6 +101,7 @@ class MediaStoreRequestHandler extends ContentStreamRequestHandler {
     return FULL;
   }
 
+  /*获取图片方向*/
   static int getExifOrientation(ContentResolver contentResolver, Uri uri) {
     Cursor cursor = null;
     try {

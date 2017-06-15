@@ -20,7 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
-
+/*ImageViewAction*/
 class ImageViewAction extends Action<ImageView> {
 
   Callback callback;
